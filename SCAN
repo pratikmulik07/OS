@@ -1,59 +1,89 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void sort(int arr[], int n){
+void sort(int a[], int n) {
     for(int i=0;i<n-1;i++)
         for(int j=0;j<n-i-1;j++)
-            if(arr[j]>arr[j+1]){
-                int t=arr[j]; arr[j]=arr[j+1]; arr[j+1]=t;
+            if(a[j] > a[j+1]) {
+                int t=a[j]; a[j]=a[j+1]; a[j+1]=t;
             }
 }
 
 int main() {
-    int n, head, size, dir, req[100], total = 0;
+    int req[100], n, head, size, dir;
+    int total = 0;
 
     printf("Enter number of requests: ");
-    scanf("%d", &n);
+    scanf("%d",&n);
 
     printf("Enter request queue: ");
-    for(int i = 0; i < n; i++) scanf("%d", &req[i]);
+    for(int i=0;i<n;i++) scanf("%d",&req[i]);
 
-    printf("Enter initial head position: ");
-    scanf("%d", &head);
+    printf("Enter head position: ");
+    scanf("%d",&head);
 
     printf("Enter disk size: ");
-    scanf("%d", &size);
+    scanf("%d",&size);
 
-    printf("Enter direction (0=Left,1=Right): ");
-    scanf("%d", &dir);
+    printf("Enter direction (1=Right,0=Left): ");
+    scanf("%d",&dir);
 
-    req[n++] = head;
     sort(req, n);
 
-    int index;
-    for(int i=0;i<n;i++) if(req[i]==head) index=i;
+    printf("\nHead Movement:\n");
 
-    printf("\nHead Movement Table:\n");
-    printf("Current -> Next | Movement\n");
-
-    if(dir==1){
-        for(int i=index;i<n-1;i++){
-            int move=abs(req[i]-req[i+1]);
-            printf("%d -> %d | %d\n",req[i],req[i+1],move);
-            total+=move;
+    if(dir == 1) {  // RIGHT
+        // move right
+        for(int i=0;i<n;i++) {
+            if(req[i] >= head) {
+                printf("%d -> %d\n", head, req[i]);
+                total += abs(head - req[i]);
+                head = req[i];
+            }
         }
-        total+=abs(req[n-1]-(size-1));
-        printf("%d -> %d | %d\n",req[n-1],size-1,abs(req[n-1]-(size-1)));
 
-        for(int i=index-1;i>=0;i--){
-            int move=abs((i==index-1?size-1:req[i+1])-req[i]);
-            printf("%d -> %d | %d\n",(i==index-1?size-1:req[i+1]),req[i],move);
-            total+=move;
+        // go to end
+        printf("%d -> %d\n", head, size-1);
+        total += abs(head - (size-1));
+        head = size-1;
+
+        // move left
+        for(int i=n-1;i>=0;i--) {
+            if(req[i] < head) {
+                printf("%d -> %d\n", head, req[i]);
+                total += abs(head - req[i]);
+                head = req[i];
+            }
         }
     }
 
-    printf("\nTotal Seek Length = %d\n", total);
-    printf("Average Seek Length = %.2f\n", (float)total/(n-1));
+    else {  // LEFT
+        // move left
+        for(int i=n-1;i>=0;i--) {
+            if(req[i] <= head) {
+                printf("%d -> %d\n", head, req[i]);
+                total += abs(head - req[i]);
+                head = req[i];
+            }
+        }
+
+        // go to start
+        printf("%d -> 0\n", head);
+        total += abs(head - 0);
+        head = 0;
+
+        // move right
+        for(int i=0;i<n;i++) {
+            if(req[i] > head) {
+                printf("%d -> %d\n", head, req[i]);
+                total += abs(head - req[i]);
+                head = req[i];
+            }
+        }
+    }
+
+    printf("\nTotal Seek Time = %d\n", total);
+    printf("Average Seek Time = %.2f\n", (float)total/n);
 
     return 0;
 }
